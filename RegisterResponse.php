@@ -42,24 +42,29 @@ namespace paul999\u2f;
  *
  * @package u2flib_server
  */
-class SignRequest
+class RegisterResponse
 {
-    public function __construct($challenge, $keyHandle, $appId)
+    /**
+     * RegisterResponse constructor.
+     * @param string $registrationData
+     * @param string $clientData
+     * @param string $errorCode
+     */
+    public function __construct($registrationData, $clientData, $errorCode = null)
     {
-        $this->challenge = $challenge;
-        $this->keyHandle = $keyHandle;
-        $this->appId = $appId;
+        $this->registrationData = $registrationData;
+        $this->clientData       = $clientData;
+        $this->errorCode        = $errorCode;
     }
 
-    /** Protocol version */
-    public $version = U2F_interface::U2F_VERSION;
+    /**
+     * @var string Registration data
+     */
+    public $registrationData;
 
-    /** Authentication challenge */
-    public $challenge;
+    /** @var string client data */
+    public $clientData;
 
-    /** Key handle of a registered authenticator */
-    public $keyHandle;
-
-    /** Application id */
-    public $appId;
+    /** @var string errorCode from the browser */
+    public $errorCode;
 }

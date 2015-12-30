@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @copyrigt (c) 2015, Paul Sohier
+ * @copyright (c) 2015, Paul Sohier
  * @copyright (c) 2014 Yubico AB
  * @license BSD-2-Clause
  *
@@ -81,17 +81,9 @@ class U2F implements U2F_interface
         return array($request, $signs);
     }
 
-    public function doRegister($request, $response, $includeCert = true)
+    public function doRegister(RegisterRequest $request, RegisterResponse $response, $includeCert = true)
     {
-        if (!is_object($request)) {
-            throw new \InvalidArgumentException('$request of doRegister() method only accepts object.');
-        }
-
-        if (!is_object($response)) {
-            throw new \InvalidArgumentException('$response of doRegister() method only accepts object.');
-        }
-
-        if (property_exists($response, 'errorCode')) {
+        if ($response->errorCode != null) {
             throw new U2fError('User-agent returned error. Error code: ' . $response->errorCode, U2fError::ERR_BAD_UA_RETURNING);
         }
 
@@ -164,40 +156,28 @@ class U2F implements U2F_interface
     {
         $sigs = array();
         foreach ($registrations as $reg) {
-            if (!is_object($reg)) {
+            if (! ($reg instanceof Registration)) {
                 throw new \InvalidArgumentException('$registrations of getAuthenticateData() method only accepts array of object.');
             }
-
-            $sig = new SignRequest();
-            $sig->appId = $this->appId;
-            $sig->keyHandle = $reg->keyHandle;
-            $sig->challenge = $this->createChallenge();
-            $sigs[] = $sig;
+            $sigs[] = new SignRequest($this->createChallenge(), $reg->keyHandle, $this->appId);
         }
         return $sigs;
     }
 
-    public function doAuthenticate(array $requests, array $registrations, $response)
+    public function doAuthenticate(array $requests, array $registrations, AuthenticationResponse $response)
     {
-        if (!is_object($response)) {
-            throw new \InvalidArgumentException('$response of doAuthenticate() method only accepts object.');
-        }
-
-        if (property_exists($response, 'errorCode')) {
+        if ($response->errorCode != null) {
             throw new U2fError('User-agent returned error. Error code: ' . $response->errorCode, U2fError::ERR_BAD_UA_RETURNING);
         }
 
-        /** @var object|null $req */
-        $req = null;
-
-        /** @var object|null $reg */
-        $reg = null;
-
         $clientData = $this->base64u_decode($response->clientData);
         $decodedClient = json_decode($clientData);
+        /**
+         * @var SignRequest $req
+         */
         foreach ($requests as $req) {
-            if (!is_object($req)) {
-                throw new \InvalidArgumentException('$requests of doAuthenticate() method only accepts array of object.');
+            if (! ($req instanceof SignRequest)) {
+                throw new \InvalidArgumentException('$requests of doAuthenticate() method only accepts array of SignRequest.');
             }
 
             if ($req->keyHandle === $response->keyHandle && $req->challenge === $decodedClient->challenge) {
@@ -209,9 +189,12 @@ class U2F implements U2F_interface
         if ($req === null) {
             throw new U2fError('No matching request found', U2fError::ERR_NO_MATCHING_REQUEST);
         }
+        /**
+         * @var Registration reg
+         */
         foreach ($registrations as $reg) {
-            if (!is_object($reg)) {
-                throw new \InvalidArgumentException('$registrations of doAuthenticate() method only accepts array of object.');
+            if (!($reg instanceof Registration)) {
+                throw new \InvalidArgumentException('$registrations of doAuthenticate() method only accepts array of Registration.');
             }
 
             if ($reg->keyHandle === $response->keyHandle) {

@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @copyrigt (c) 2015, Paul Sohier
+ * @copyright (c) 2015, Paul Sohier
  * @copyright (c) 2014 Yubico AB
  * @license BSD-2-Clause
  *
@@ -44,6 +44,14 @@ namespace paul999\u2f;
  */
 class Registration
 {
+    public function __construct($keyHandle = null, $publicKey = null, $certificate = null, $counter = -1)
+    {
+        $this->keyHandle = $keyHandle;
+        $this->publicKey = $publicKey;
+        $this->certificate = $certificate;
+        $this->counter = $counter;
+    }
+
     /** The key handle of the registered authenticator */
     public $keyHandle;
 

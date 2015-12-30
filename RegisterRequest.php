@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @copyrigt (c) 2015, Paul Sohier
+ * @copyright (c) 2015, Paul Sohier
  * @copyright (c) 2014 Yubico AB
  * @license BSD-2-Clause
  *
