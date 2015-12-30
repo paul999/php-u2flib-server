@@ -1,5 +1,13 @@
 <?php
-/* Copyright (c) 2014 Yubico AB
+/**
+ *
+ * @copyrigt (c) 2015, Paul Sohier
+ * @copyright (c) 2014 Yubico AB
+ * @license BSD-2-Clause
+ *
+ *
+ * Orignal Copyright:
+ * Copyright (c) 2014 Yubico AB
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,54 +35,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace u2flib_server;
+namespace paul999\u2f;
 
 /** Constant for the version of the u2f protocol */
-const U2F_VERSION = "U2F_V2";
+use paul999\u2f\Exceptions\U2fError;
 
-/** Error for the authentication message not matching any outstanding
- * authentication request */
-const ERR_NO_MATCHING_REQUEST = 1;
 
-/** Error for the authentication message not matching any registration */
-const ERR_NO_MATCHING_REGISTRATION = 2;
-
-/** Error for the signature on the authentication message not verifying with
- * the correct key */
-const ERR_AUTHENTICATION_FAILURE = 3;
-
-/** Error for the challenge in the registration message not matching the
- * registration challenge */
-const ERR_UNMATCHED_CHALLENGE = 4;
-
-/** Error for the attestation signature on the registration message not
- * verifying */
-const ERR_ATTESTATION_SIGNATURE = 5;
-
-/** Error for the attestation verification not verifying */
-const ERR_ATTESTATION_VERIFICATION = 6;
-
-/** Error for not getting good random from the system */
-const ERR_BAD_RANDOM = 7;
-
-/** Error when the counter is lower than expected */
-const ERR_COUNTER_TOO_LOW = 8;
-
-/** Error decoding public key */
-const ERR_PUBKEY_DECODE = 9;
-
-/** Error user-agent returned error */
-const ERR_BAD_UA_RETURNING = 10;
-
-/** Error old OpenSSL version */
-const ERR_OLD_OPENSSL = 11;
-
-/** @internal */
-const PUBKEY_LEN = 65;
-
-class U2F
+class U2F implements U2F_interface
 {
-    /** @var string  */
+    /** @var string */
     private $appId;
 
     /** @var null|string */
@@ -93,28 +62,17 @@ class U2F
     /**
      * @param string $appId Application id for the running application
      * @param string|null $attestDir Directory where trusted attestation roots may be found
-     * @throws Error If OpenSSL older than 1.0.0 is used
+     * @throws U2fError If OpenSSL older than 1.0.0 is used
      */
     public function __construct($appId, $attestDir = null)
     {
-        if(OPENSSL_VERSION_NUMBER < 0x10000000) {
-            throw new Error('OpenSSL has to be at least version 1.0.0, this is ' . OPENSSL_VERSION_TEXT, ERR_OLD_OPENSSL);
+        if (OPENSSL_VERSION_NUMBER < 0x10000000) {
+            throw new U2fError('OpenSSL has to be at least version 1.0.0, this is ' . OPENSSL_VERSION_TEXT, U2fError::ERR_OLD_OPENSSL);
         }
         $this->appId = $appId;
         $this->attestDir = $attestDir;
     }
 
-    /**
-     * Called to get a registration request to send to a user.
-     * Returns an array of one registration request and a array of sign requests.
-     *
-     * @param array $registrations List of current registrations for this
-     * user, to prevent the user from registering the same authenticator several
-     * times.
-     * @return array An array of two elements, the first containing a
-     * RegisterRequest the second being an array of SignRequest
-     * @throws Error
-     */
     public function getRegisterData(array $registrations = array())
     {
         $challenge = $this->createChallenge();
@@ -123,31 +81,21 @@ class U2F
         return array($request, $signs);
     }
 
-    /**
-     * Called to verify and unpack a registration message.
-     *
-     * @param RegisterRequest $request this is a reply to
-     * @param object $response response from a user
-     * @param bool $includeCert set to true if the attestation certificate should be
-     * included in the returned Registration object
-     * @return Registration
-     * @throws Error
-     */
     public function doRegister($request, $response, $includeCert = true)
     {
-        if( !is_object( $request ) ) {
+        if (!is_object($request)) {
             throw new \InvalidArgumentException('$request of doRegister() method only accepts object.');
         }
 
-        if( !is_object( $response ) ) {
+        if (!is_object($response)) {
             throw new \InvalidArgumentException('$response of doRegister() method only accepts object.');
         }
 
-        if( property_exists( $response, 'errorCode') ) {
-            throw new Error('User-agent returned error. Error code: ' . $response->errorCode, ERR_BAD_UA_RETURNING );
+        if (property_exists($response, 'errorCode')) {
+            throw new U2fError('User-agent returned error. Error code: ' . $response->errorCode, U2fError::ERR_BAD_UA_RETURNING);
         }
 
-        if( !is_bool( $includeCert ) ) {
+        if (!is_bool($includeCert)) {
             throw new \InvalidArgumentException('$include_cert of doRegister() method only accepts boolean.');
         }
 
@@ -156,18 +104,18 @@ class U2F
         $clientData = $this->base64u_decode($response->clientData);
         $cli = json_decode($clientData);
 
-        if($cli->challenge !== $request->challenge) {
-            throw new Error('Registration challenge does not match', ERR_UNMATCHED_CHALLENGE );
+        if ($cli->challenge !== $request->challenge) {
+            throw new U2fError('Registration challenge does not match', U2fError::ERR_UNMATCHED_CHALLENGE);
         }
 
         $registration = new Registration();
         $offs = 1;
-        $pubKey = substr($rawReg, $offs, PUBKEY_LEN);
-        $offs += PUBKEY_LEN;
+        $pubKey = substr($rawReg, $offs, self::PUBKEY_LEN);
+        $offs += self::PUBKEY_LEN;
         // decode the pubKey to make sure it's good
         $tmpKey = $this->pubkey_to_pem($pubKey);
-        if($tmpKey === null) {
-            throw new Error('Decoding of public key failed', ERR_PUBKEY_DECODE );
+        if ($tmpKey === null) {
+            throw new U2fError('Decoding of public key failed', U2fError::ERR_PUBKEY_DECODE);
         }
         $registration->publicKey = base64_encode($pubKey);
         $khLen = $regData[$offs++];
@@ -182,48 +130,41 @@ class U2F
 
         $rawCert = $this->fixSignatureUnusedBits(substr($rawReg, $offs, $certLen));
         $offs += $certLen;
-        $pemCert  = "-----BEGIN CERTIFICATE-----\r\n";
+        $pemCert = "-----BEGIN CERTIFICATE-----\r\n";
         $pemCert .= chunk_split(base64_encode($rawCert), 64);
         $pemCert .= "-----END CERTIFICATE-----";
-        if($includeCert) {
+        if ($includeCert) {
             $registration->certificate = base64_encode($rawCert);
         }
-        if($this->attestDir) {
-            if(openssl_x509_checkpurpose($pemCert, -1, $this->get_certs()) !== true) {
-                throw new Error('Attestation certificate can not be validated', ERR_ATTESTATION_VERIFICATION );
+        if ($this->attestDir) {
+            if (openssl_x509_checkpurpose($pemCert, -1, $this->get_certs()) !== true) {
+                throw new U2fError('Attestation certificate can not be validated', U2fError::ERR_ATTESTATION_VERIFICATION);
             }
         }
 
-        if(!openssl_pkey_get_public($pemCert)) {
-            throw new Error('Decoding of public key failed', ERR_PUBKEY_DECODE );
+        if (!openssl_pkey_get_public($pemCert)) {
+            throw new U2fError('Decoding of public key failed', U2fError::ERR_PUBKEY_DECODE);
         }
         $signature = substr($rawReg, $offs);
 
-        $dataToVerify  = chr(0);
+        $dataToVerify = chr(0);
         $dataToVerify .= hash('sha256', $request->appId, true);
         $dataToVerify .= hash('sha256', $clientData, true);
         $dataToVerify .= $kh;
         $dataToVerify .= $pubKey;
 
-        if(openssl_verify($dataToVerify, $signature, $pemCert, 'sha256') === 1) {
+        if (openssl_verify($dataToVerify, $signature, $pemCert, 'sha256') === 1) {
             return $registration;
         } else {
-            throw new Error('Attestation signature does not match', ERR_ATTESTATION_SIGNATURE );
+            throw new U2fError('Attestation signature does not match', U2fError::ERR_ATTESTATION_SIGNATURE);
         }
     }
 
-    /**
-     * Called to get an authentication request.
-     *
-     * @param array $registrations An array of the registrations to create authentication requests for.
-     * @return array An array of SignRequest
-     * @throws Error
-     */
     public function getAuthenticateData(array $registrations)
     {
         $sigs = array();
         foreach ($registrations as $reg) {
-            if( !is_object( $reg ) ) {
+            if (!is_object($reg)) {
                 throw new \InvalidArgumentException('$registrations of getAuthenticateData() method only accepts array of object.');
             }
 
@@ -236,28 +177,14 @@ class U2F
         return $sigs;
     }
 
-    /**
-     * Called to verify an authentication response
-     *
-     * @param array $requests An array of outstanding authentication requests
-     * @param array $registrations An array of current registrations
-     * @param object $response A response from the authenticator
-     * @return Registration
-     * @throws Error
-     *
-     * The Registration object returned on success contains an updated counter
-     * that should be saved for future authentications.
-     * If the Error returned is ERR_COUNTER_TOO_LOW this is an indication of
-     * token cloning or similar and appropriate action should be taken.
-     */
     public function doAuthenticate(array $requests, array $registrations, $response)
     {
-        if( !is_object( $response ) ) {
+        if (!is_object($response)) {
             throw new \InvalidArgumentException('$response of doAuthenticate() method only accepts object.');
         }
 
-        if( property_exists( $response, 'errorCode') ) {
-            throw new Error('User-agent returned error. Error code: ' . $response->errorCode, ERR_BAD_UA_RETURNING );
+        if (property_exists($response, 'errorCode')) {
+            throw new U2fError('User-agent returned error. Error code: ' . $response->errorCode, U2fError::ERR_BAD_UA_RETURNING);
         }
 
         /** @var object|null $req */
@@ -269,55 +196,55 @@ class U2F
         $clientData = $this->base64u_decode($response->clientData);
         $decodedClient = json_decode($clientData);
         foreach ($requests as $req) {
-            if( !is_object( $req ) ) {
+            if (!is_object($req)) {
                 throw new \InvalidArgumentException('$requests of doAuthenticate() method only accepts array of object.');
             }
 
-            if($req->keyHandle === $response->keyHandle && $req->challenge === $decodedClient->challenge) {
+            if ($req->keyHandle === $response->keyHandle && $req->challenge === $decodedClient->challenge) {
                 break;
             }
 
             $req = null;
         }
-        if($req === null) {
-            throw new Error('No matching request found', ERR_NO_MATCHING_REQUEST );
+        if ($req === null) {
+            throw new U2fError('No matching request found', U2fError::ERR_NO_MATCHING_REQUEST);
         }
         foreach ($registrations as $reg) {
-            if( !is_object( $reg ) ) {
+            if (!is_object($reg)) {
                 throw new \InvalidArgumentException('$registrations of doAuthenticate() method only accepts array of object.');
             }
 
-            if($reg->keyHandle === $response->keyHandle) {
+            if ($reg->keyHandle === $response->keyHandle) {
                 break;
             }
             $reg = null;
         }
-        if($reg === null) {
-            throw new Error('No matching registration found', ERR_NO_MATCHING_REGISTRATION );
+        if ($reg === null) {
+            throw new U2fError('No matching registration found', U2fError::ERR_NO_MATCHING_REGISTRATION);
         }
         $pemKey = $this->pubkey_to_pem($this->base64u_decode($reg->publicKey));
-        if($pemKey === null) {
-            throw new Error('Decoding of public key failed', ERR_PUBKEY_DECODE );
+        if ($pemKey === null) {
+            throw new U2fError('Decoding of public key failed', U2fError::ERR_PUBKEY_DECODE);
         }
 
         $signData = $this->base64u_decode($response->signatureData);
-        $dataToVerify  = hash('sha256', $req->appId, true);
+        $dataToVerify = hash('sha256', $req->appId, true);
         $dataToVerify .= substr($signData, 0, 5);
         $dataToVerify .= hash('sha256', $clientData, true);
         $signature = substr($signData, 5);
 
-        if(openssl_verify($dataToVerify, $signature, $pemKey, 'sha256') === 1) {
+        if (openssl_verify($dataToVerify, $signature, $pemKey, 'sha256') === 1) {
             $ctr = unpack("Nctr", substr($signData, 1, 4));
             $counter = $ctr['ctr'];
             /* TODO: wrap-around should be handled somehow.. */
-            if($counter > $reg->counter) {
+            if ($counter > $reg->counter) {
                 $reg->counter = $counter;
                 return $reg;
             } else {
-                throw new Error('Counter too low.', ERR_COUNTER_TOO_LOW );
+                throw new U2fError('Counter too low.', U2fError::ERR_COUNTER_TOO_LOW);
             }
         } else {
-            throw new Error('Authentication failed', ERR_AUTHENTICATION_FAILURE );
+            throw new U2fError('Authentication failed', U2fError::ERR_AUTHENTICATION_FAILURE);
         }
     }
 
@@ -328,9 +255,9 @@ class U2F
     {
         $files = array();
         $dir = $this->attestDir;
-        if($dir && $handle = opendir($dir)) {
-            while(false !== ($entry = readdir($handle))) {
-                if(is_file("$dir/$entry")) {
+        if ($dir && $handle = opendir($dir)) {
+            while (false !== ($entry = readdir($handle))) {
+                if (is_file("$dir/$entry")) {
                     $files[] = "$dir/$entry";
                 }
             }
@@ -363,7 +290,7 @@ class U2F
      */
     private function pubkey_to_pem($key)
     {
-        if(strlen($key) !== PUBKEY_LEN || $key[0] !== "\x04") {
+        if (strlen($key) !== self::PUBKEY_LEN || $key[0] !== "\x04") {
             return null;
         }
 
@@ -377,11 +304,11 @@ class U2F
          *    OID1.2.840.10045.3.1.7 (secp256r1)    06 08 2a 86 48 ce 3d 03 01 07
          *   BIT STRING(520 bit)                    03 42 ..key..
          */
-        $der  = "\x30\x59\x30\x13\x06\x07\x2a\x86\x48\xce\x3d\x02\x01";
+        $der = "\x30\x59\x30\x13\x06\x07\x2a\x86\x48\xce\x3d\x02\x01";
         $der .= "\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07\x03\x42";
-        $der .= "\0".$key;
+        $der .= "\0" . $key;
 
-        $pem  = "-----BEGIN PUBLIC KEY-----\r\n";
+        $pem = "-----BEGIN PUBLIC KEY-----\r\n";
         $pem .= chunk_split(base64_encode($der), 64);
         $pem .= "-----END PUBLIC KEY-----";
 
@@ -390,16 +317,16 @@ class U2F
 
     /**
      * @return string
-     * @throws Error
+     * @throws U2fError
      */
     private function createChallenge()
     {
-        $challenge = openssl_random_pseudo_bytes(32, $crypto_strong );
-        if( $crypto_strong !== true ) {
-            throw new Error('Unable to obtain a good source of randomness', ERR_BAD_RANDOM);
+        $challenge = openssl_random_pseudo_bytes(32, $crypto_strong);
+        if ($crypto_strong !== true) {
+            throw new U2fError('Unable to obtain a good source of randomness', U2fError::ERR_BAD_RANDOM);
         }
 
-        $challenge = $this->base64u_encode( $challenge );
+        $challenge = $this->base64u_encode($challenge);
 
         return $challenge;
     }
@@ -412,95 +339,9 @@ class U2F
      */
     private function fixSignatureUnusedBits($cert)
     {
-        if(in_array(hash('sha256', $cert), $this->FIXCERTS)) {
+        if (in_array(hash('sha256', $cert), $this->FIXCERTS)) {
             $cert[strlen($cert) - 257] = "\0";
         }
         return $cert;
-    }
-}
-
-/**
- * Class for building a registration request
- *
- * @package u2flib_server
- */
-class RegisterRequest
-{
-    /** Protocol version */
-    public $version = U2F_VERSION;
-
-    /** Registration challenge */
-    public $challenge;
-
-    /** Application id */
-    public $appId;
-
-    /**
-     * @param string $challenge
-     * @param string $appId
-     * @internal
-     */
-    public function __construct($challenge, $appId)
-    {
-        $this->challenge = $challenge;
-        $this->appId = $appId;
-    }
-}
-
-/**
- * Class for building up an authentication request
- *
- * @package u2flib_server
- */
-class SignRequest
-{
-    /** Protocol version */
-    public $version = U2F_VERSION;
-
-    /** Authentication challenge */
-    public $challenge;
-
-    /** Key handle of a registered authenticator */
-    public $keyHandle;
-
-    /** Application id */
-    public $appId;
-}
-
-/**
- * Class returned for successful registrations
- *
- * @package u2flib_server
- */
-class Registration
-{
-    /** The key handle of the registered authenticator */
-    public $keyHandle;
-
-    /** The public key of the registered authenticator */
-    public $publicKey;
-
-    /** The attestation certificate of the registered authenticator */
-    public $certificate;
-
-    /** The counter associated with this registration */
-    public $counter = -1;
-}
-
-/**
- * Error class, returned on errors
- *
- * @package u2flib_server
- */
-class Error extends \Exception
-{
-    /**
-     * Override constructor and make message and code mandatory
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
-     */
-    public function __construct($message, $code, \Exception $previous = null) {
-        parent::__construct($message, $code, $previous);
     }
 }

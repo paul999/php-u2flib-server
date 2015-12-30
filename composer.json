@@ -23,7 +23,10 @@
     "ext-openssl":"*"
   },
   "autoload": {
-    "classmap": ["src/"]
+    "psr-4": { "paul999\\u2f\\": "" },
+    "exclude-from-classmap": [
+      "/tests/"
+    ]
   }
 }
 
