@@ -1,9 +1,25 @@
 {
-  "name":"yubico/u2flib-server",
+  "name":"paul999/u2flib-server",
   "description":"Library for U2F implementation",
-  "homepage":"https://developers.yubico.com/php-u2flib-server",
+  "homepage":"https://github.com/paul999/php-u2flib-server",
+
+  "authors": [
+    {
+      "name": "Paul Sohier",
+      "homepage": "https://github.com/paul999/php-u2flib-server",
+      "email": "paul@phpbb.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Yubico",
+      "homepage": "https://github.com/Yubico/php-u2flib-server",
+      "role": "Original developer"
+    }
+  ],
+
   "license":"BSD-2-Clause",
   "require": {
+    "php": "^5.3.3",
     "ext-openssl":"*"
   },
   "autoload": {
