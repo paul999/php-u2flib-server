@@ -128,7 +128,7 @@ class U2F implements U2F_interface
         if ($includeCert) {
             $registration->certificate = base64_encode($rawCert);
         }
-        if ($this->attestDir) {
+        if ($this->attestDir !== null) {
             if (openssl_x509_checkpurpose($pemCert, -1, $this->get_certs()) !== true) {
                 throw new U2fError('Attestation certificate can not be validated', U2fError::ERR_ATTESTATION_VERIFICATION);
             }
@@ -156,7 +156,7 @@ class U2F implements U2F_interface
     {
         $sigs = array();
         foreach ($registrations as $reg) {
-            if (! ($reg instanceof Registration)) {
+            if (!($reg instanceof Registration)) {
                 throw new \InvalidArgumentException('$registrations of getAuthenticateData() method only accepts array of object.');
             }
             $sigs[] = new SignRequest($this->createChallenge(), $reg->keyHandle, $this->appId);
@@ -175,34 +175,33 @@ class U2F implements U2F_interface
         /**
          * @var SignRequest $req
          */
-        foreach ($requests as $req) {
-            if (! ($req instanceof SignRequest)) {
+        foreach ($requests as $row) {
+            if (!($row instanceof SignRequest)) {
                 throw new \InvalidArgumentException('$requests of doAuthenticate() method only accepts array of SignRequest.');
             }
 
-            if ($req->keyHandle === $response->keyHandle && $req->challenge === $decodedClient->challenge) {
+            if ($row->keyHandle === $response->keyHandle && $row->challenge === $decodedClient->challenge) {
+                $req = $row;
                 break;
             }
-
-            $req = null;
         }
-        if ($req === null) {
+        if (!isset($req)) {
             throw new U2fError('No matching request found', U2fError::ERR_NO_MATCHING_REQUEST);
         }
         /**
          * @var Registration reg
          */
-        foreach ($registrations as $reg) {
-            if (!($reg instanceof Registration)) {
+        foreach ($registrations as $row) {
+            if (!($row instanceof Registration)) {
                 throw new \InvalidArgumentException('$registrations of doAuthenticate() method only accepts array of Registration.');
             }
 
-            if ($reg->keyHandle === $response->keyHandle) {
+            if ($row->keyHandle === $response->keyHandle) {
+                $reg = $row;
                 break;
             }
-            $reg = null;
         }
-        if ($reg === null) {
+        if (!isset($reg)) {
             throw new U2fError('No matching registration found', U2fError::ERR_NO_MATCHING_REGISTRATION);
         }
         $pemKey = $this->pubkey_to_pem($this->base64u_decode($reg->publicKey));
@@ -237,11 +236,10 @@ class U2F implements U2F_interface
     private function get_certs()
     {
         $files = array();
-        $dir = $this->attestDir;
-        if ($dir && $handle = opendir($dir)) {
-            while (false !== ($entry = readdir($handle))) {
-                if (is_file("$dir/$entry")) {
-                    $files[] = "$dir/$entry";
+        if ($this->attestDir !== null && $handle = opendir($this->attestDir)) {
+            while (false !== ($entry = @readdir($handle))) {
+                if (is_file("{$this->attestDir}/$entry")) {
+                    $files[] = "{$this->attestDir}/$entry";
                 }
             }
             closedir($handle);
