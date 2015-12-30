@@ -5,9 +5,6 @@ php-u2flib-server
 [![Build Status](https://travis-ci.org/paul999/php-u2flib-server.svg?branch=master)](https://travis-ci.org/paul999/php-u2flib-server)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/paul999/php-u2flib-server/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/paul999/php-u2flib-server/)
 
-[image:https://coveralls.io/repos/paul999/php-u2flib-server/badge.svg?branch=master&service=github["Coverage", link="https://coveralls.io/github/paul999/php-u2flib-server?branch=master"]
-[image:https://scrutinizer-ci.com/g/Yubico/php-u2flib-server/badges/quality-score.png?b=master["", link="https://scrutinizer-ci.com/g/paul999/php-u2flib-server/?branch=master"]
-
 Introduction
 ============
 Serverside U2F library for PHP. Provides functionality for registering
