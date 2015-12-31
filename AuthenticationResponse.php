@@ -42,13 +42,33 @@ namespace paul999\u2f;
  *
  * @package u2flib_server
  */
-class AuthenticationResponse
+class AuthenticationResponse implements AuthenticationResponseInterface
 {
     /**
+     * @var string signatureData
+     */
+    private $signatureData;
+
+    /**
+     * @var string client data
+     */
+    private $clientData;
+
+    /**
+     * @var string keyHandle
+     */
+    private $keyHandle;
+
+    /**
+     * @var string errorCode from the browser
+     */
+    private $errorCode;
+
+    /**
      * RegisterResponse constructor.
-     * @param $signatureData
+     * @param string $signatureData
      * @param string $clientData
-     * @param $keyHandle
+     * @param string $keyHandle
      * @param string $errorCode
      */
     public function __construct($signatureData, $clientData, $keyHandle, $errorCode = null)
@@ -60,18 +80,75 @@ class AuthenticationResponse
     }
 
     /**
-     * @var string signatureData
+     * @return string
      */
-    public $signatureData;
-
-    /** @var string client data */
-    public $clientData;
+    public function getSignatureData()
+    {
+        return $this->signatureData;
+    }
 
     /**
-     * @var string keyHandle
+     * @param string $signatureData
+     * @return AuthenticationResponseInterface
      */
-    public $keyHandle;
+    public function setSignatureData($signatureData)
+    {
+        $this->signatureData = $signatureData;
+        return $this;
+    }
 
-    /** @var string errorCode from the browser */
-    public $errorCode;
+    /**
+     * @return string
+     */
+    public function getClientData()
+    {
+        return $this->clientData;
+    }
+
+    /**
+     * @param string $clientData
+     * @return AuthenticationResponseInterface
+     */
+    public function setClientData($clientData)
+    {
+        $this->clientData = $clientData;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKeyHandle()
+    {
+        return $this->keyHandle;
+    }
+
+    /**
+     * @param string $keyHandle
+     * @return AuthenticationResponseInterface
+     */
+    public function setKeyHandle($keyHandle)
+    {
+        $this->keyHandle = $keyHandle;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
+    /**
+     * @param string $errorCode
+     * @return AuthenticationResponseInterface
+     */
+    public function setErrorCode($errorCode)
+    {
+        $this->errorCode = $errorCode;
+        return $this;
+    }
+
 }

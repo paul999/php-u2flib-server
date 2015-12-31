@@ -1,12 +1,12 @@
 {
   "name":"paul999/u2flib-server",
   "description":"Library for U2F implementation",
-  "homepage":"https://github.com/paul999/php-u2flib-server",
+  "homepage":"http://u2flib.io",
 
   "authors": [
     {
       "name": "Paul Sohier",
-      "homepage": "https://github.com/paul999/php-u2flib-server",
+      "homepage": "http://u2flib.io",
       "email": "paul@phpbb.com",
       "role": "Developer"
     },
@@ -21,6 +21,9 @@
   "require": {
     "php": "^5.3.3 | ^7.0",
     "ext-openssl":"*"
+  },
+  "require-dev": {
+
   },
   "autoload": {
     "psr-4": { "paul999\\u2f\\": "" },

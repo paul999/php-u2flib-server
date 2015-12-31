@@ -42,8 +42,38 @@ namespace paul999\u2f;
  *
  * @package u2flib_server
  */
-class SignRequest
+class SignRequest implements SignRequestInterface
 {
+    /**
+     * Protocol version
+     * @var string
+     */
+    public $version = U2F_interface::U2F_VERSION;
+
+    /**
+     * Authentication challenge
+     * @var string
+     */
+    public $challenge;
+
+    /**
+     * Key handle of a registered authenticator
+     * @var string
+     */
+    public $keyHandle;
+
+    /**
+     * Application id
+     * @var string
+     */
+    public $appId;
+
+    /**
+     * SignRequest constructor.
+     * @param string $challenge
+     * @param string $keyHandle
+     * @param string $appId
+     */
     public function __construct($challenge, $keyHandle, $appId)
     {
         $this->challenge = $challenge;
@@ -51,15 +81,75 @@ class SignRequest
         $this->appId = $appId;
     }
 
-    /** Protocol version */
-    public $version = U2F_interface::U2F_VERSION;
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
 
-    /** Authentication challenge */
-    public $challenge;
+    /**
+     * @param string $version
+     * @return SignRequestInterface
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+        return $this;
+    }
 
-    /** Key handle of a registered authenticator */
-    public $keyHandle;
+    /**
+     * @return string
+     */
+    public function getChallenge()
+    {
+        return $this->challenge;
+    }
 
-    /** Application id */
-    public $appId;
+    /**
+     * @param string $challenge
+     * @return SignRequestInterface
+     */
+    public function setChallenge($challenge)
+    {
+        $this->challenge = $challenge;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKeyHandle()
+    {
+        return $this->keyHandle;
+    }
+
+    /**
+     * @param string $keyHandle
+     * @return SignRequestInterface
+     */
+    public function setKeyHandle($keyHandle)
+    {
+        $this->keyHandle = $keyHandle;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppId()
+    {
+        return $this->appId;
+    }
+
+    /**
+     * @param string $appId
+     * @return SignRequestInterface
+     */
+    public function setAppId($appId)
+    {
+        $this->appId = $appId;
+        return $this;
+    }
 }

@@ -43,16 +43,16 @@ namespace paul999\u2f;
  *
  * @package u2flib_server
  */
-class RegisterRequest
+class RegisterRequest implements RegisterRequestInterface
 {
     /** Protocol version */
-    public $version = U2F_interface::U2F_VERSION;
+    private $version = U2F_interface::U2F_VERSION;
 
     /** Registration challenge */
-    public $challenge;
+    private $challenge;
 
     /** Application id */
-    public $appId;
+    private $appId;
 
     /**
      * @param string $challenge
@@ -62,5 +62,59 @@ class RegisterRequest
     {
         $this->challenge = $challenge;
         $this->appId = $appId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param mixed $version
+     * @return RegisterRequestInterface
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChallenge()
+    {
+        return $this->challenge;
+    }
+
+    /**
+     * @param mixed $challenge
+     * @return RegisterRequestInterface
+     */
+    public function setChallenge($challenge)
+    {
+        $this->challenge = $challenge;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAppId()
+    {
+        return $this->appId;
+    }
+
+    /**
+     * @param mixed $appId
+     * @return RegisterRequestInterface
+     */
+    public function setAppId($appId)
+    {
+        $this->appId = $appId;
+        return $this;
     }
 }

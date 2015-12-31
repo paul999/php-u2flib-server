@@ -34,92 +34,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 namespace paul999\u2f;
+
 
 /**
  * Class for building up an authentication request
  *
  * @package u2flib_server
  */
-class RegisterResponse implements RegisterResponseInterface
+interface AuthenticationResponseInterface
 {
     /**
-     * @var string Registration data
+     * @return string
      */
-    private $registrationData;
-
-    /** @var string client data */
-    private $clientData;
-
-    /** @var string errorCode from the browser */
-    private $errorCode;
+    public function getSignatureData();
 
     /**
-     * RegisterResponse constructor.
-     * @param string $registrationData
-     * @param string $clientData
-     * @param string $errorCode
+     * @param string $signatureData
+     * @return AuthenticationResponseInterface
      */
-    public function __construct($registrationData, $clientData, $errorCode = null)
-    {
-        $this->registrationData = $registrationData;
-        $this->clientData       = $clientData;
-        $this->errorCode        = $errorCode;
-    }
+    public function setSignatureData($signatureData);
 
     /**
      * @return string
      */
-    public function getRegistrationData()
-    {
-        return $this->registrationData;
-    }
-
-    /**
-     * @param string $registrationData
-     * @return RegisterResponseInterface
-     */
-    public function setRegistrationData($registrationData)
-    {
-        $this->registrationData = $registrationData;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getClientData()
-    {
-        return $this->clientData;
-    }
+    public function getClientData();
 
     /**
      * @param string $clientData
-     * @return RegisterResponseInterface
+     * @return AuthenticationResponseInterface
      */
-    public function setClientData($clientData)
-    {
-        $this->clientData = $clientData;
-        return $this;
-    }
+    public function setClientData($clientData);
 
     /**
      * @return string
      */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
+    public function getKeyHandle();
+
+    /**
+     * @param string $keyHandle
+     * @return AuthenticationResponseInterface
+     */
+    public function setKeyHandle($keyHandle);
+
+    /**
+     * @return string
+     */
+    public function getErrorCode();
 
     /**
      * @param string $errorCode
-     * @return RegisterResponseInterface
+     * @return AuthenticationResponseInterface
      */
-    public function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-        return $this;
-    }
-
+    public function setErrorCode($errorCode);
 }

@@ -34,92 +34,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 namespace paul999\u2f;
 
+
 /**
- * Class for building up an authentication request
+ * Class for building a registration request
  *
  * @package u2flib_server
  */
-class RegisterResponse implements RegisterResponseInterface
+interface RegisterRequestInterface
 {
     /**
-     * @var string Registration data
+     * @return mixed
      */
-    private $registrationData;
-
-    /** @var string client data */
-    private $clientData;
-
-    /** @var string errorCode from the browser */
-    private $errorCode;
+    public function getVersion();
 
     /**
-     * RegisterResponse constructor.
-     * @param string $registrationData
-     * @param string $clientData
-     * @param string $errorCode
+     * @param mixed $version
+     * @return RegisterRequestInterface
      */
-    public function __construct($registrationData, $clientData, $errorCode = null)
-    {
-        $this->registrationData = $registrationData;
-        $this->clientData       = $clientData;
-        $this->errorCode        = $errorCode;
-    }
+    public function setVersion($version);
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getRegistrationData()
-    {
-        return $this->registrationData;
-    }
+    public function getChallenge();
 
     /**
-     * @param string $registrationData
-     * @return RegisterResponseInterface
+     * @param mixed $challenge
+     * @return RegisterRequestInterface
      */
-    public function setRegistrationData($registrationData)
-    {
-        $this->registrationData = $registrationData;
-        return $this;
-    }
+    public function setChallenge($challenge);
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getClientData()
-    {
-        return $this->clientData;
-    }
+    public function getAppId();
 
     /**
-     * @param string $clientData
-     * @return RegisterResponseInterface
+     * @param mixed $appId
+     * @return RegisterRequestInterface
      */
-    public function setClientData($clientData)
-    {
-        $this->clientData = $clientData;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
-
-    /**
-     * @param string $errorCode
-     * @return RegisterResponseInterface
-     */
-    public function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-        return $this;
-    }
-
+    public function setAppId($appId);
 }

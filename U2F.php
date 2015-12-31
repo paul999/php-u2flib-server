@@ -81,22 +81,22 @@ class U2F implements U2F_interface
         return array($request, $signs);
     }
 
-    public function doRegister(RegisterRequest $request, RegisterResponse $response, $includeCert = true)
+    public function doRegister(RegisterRequestInterface $request, RegisterResponseInterface $response, $includeCert = true)
     {
-        if ($response->errorCode != null) {
-            throw new U2fError('User-agent returned error. Error code: ' . $response->errorCode, U2fError::ERR_BAD_UA_RETURNING);
+        if ($response->getErrorCode() != null) {
+            throw new U2fError('User-agent returned error. Error code: ' . $response->getErrorCode(), U2fError::ERR_BAD_UA_RETURNING);
         }
 
         if (!is_bool($includeCert)) {
             throw new \InvalidArgumentException('$include_cert of doRegister() method only accepts boolean.');
         }
 
-        $rawReg = $this->base64u_decode($response->registrationData);
+        $rawReg = $this->base64u_decode($response->getRegistrationData());
         $regData = array_values(unpack('C*', $rawReg));
-        $clientData = $this->base64u_decode($response->clientData);
+        $clientData = $this->base64u_decode($response->getClientData());
         $cli = json_decode($clientData);
 
-        if ($cli->challenge !== $request->challenge) {
+        if ($cli->challenge !== $request->getChallenge()) {
             throw new U2fError('Registration challenge does not match', U2fError::ERR_UNMATCHED_CHALLENGE);
         }
 
@@ -109,11 +109,11 @@ class U2F implements U2F_interface
         if ($tmpKey === null) {
             throw new U2fError('Decoding of public key failed', U2fError::ERR_PUBKEY_DECODE);
         }
-        $registration->publicKey = base64_encode($pubKey);
+        $registration->setPublicKey(base64_encode($pubKey));
         $khLen = $regData[$offs++];
         $kh = substr($rawReg, $offs, $khLen);
         $offs += $khLen;
-        $registration->keyHandle = $this->base64u_encode($kh);
+        $registration->setKeyHandle($this->base64u_encode($kh));
 
         // length of certificate is stored in byte 3 and 4 (excluding the first 4 bytes)
         $certLen = 4;
@@ -126,7 +126,7 @@ class U2F implements U2F_interface
         $pemCert .= chunk_split(base64_encode($rawCert), 64);
         $pemCert .= "-----END CERTIFICATE-----";
         if ($includeCert) {
-            $registration->certificate = base64_encode($rawCert);
+            $registration->setCertificate(base64_encode($rawCert));
         }
         if ($this->attestDir !== null) {
             if (openssl_x509_checkpurpose($pemCert, -1, $this->get_certs()) !== true) {
@@ -140,7 +140,7 @@ class U2F implements U2F_interface
         $signature = substr($rawReg, $offs);
 
         $dataToVerify = chr(0);
-        $dataToVerify .= hash('sha256', $request->appId, true);
+        $dataToVerify .= hash('sha256', $request->getAppId(), true);
         $dataToVerify .= hash('sha256', $clientData, true);
         $dataToVerify .= $kh;
         $dataToVerify .= $pubKey;
@@ -156,31 +156,31 @@ class U2F implements U2F_interface
     {
         $sigs = array();
         foreach ($registrations as $reg) {
-            if (!($reg instanceof Registration)) {
+            if (!($reg instanceof RegistrationInterface)) {
                 throw new \InvalidArgumentException('$registrations of getAuthenticateData() method only accepts array of object.');
             }
-            $sigs[] = new SignRequest($this->createChallenge(), $reg->keyHandle, $this->appId);
+            $sigs[] = new SignRequest($this->createChallenge(), $reg->getKeyHandle(), $this->appId);
         }
         return $sigs;
     }
 
-    public function doAuthenticate(array $requests, array $registrations, AuthenticationResponse $response)
+    public function doAuthenticate(array $requests, array $registrations, AuthenticationResponseInterface $response)
     {
-        if ($response->errorCode != null) {
-            throw new U2fError('User-agent returned error. Error code: ' . $response->errorCode, U2fError::ERR_BAD_UA_RETURNING);
+        if ($response->getErrorCode() != null) {
+            throw new U2fError('User-agent returned error. Error code: ' . $response->getErrorCode(), U2fError::ERR_BAD_UA_RETURNING);
         }
 
-        $clientData = $this->base64u_decode($response->clientData);
+        $clientData = $this->base64u_decode($response->getClientData());
         $decodedClient = json_decode($clientData);
         /**
-         * @var SignRequest $req
+         * @var SignRequestInterface $req
          */
         foreach ($requests as $row) {
-            if (!($row instanceof SignRequest)) {
+            if (!($row instanceof SignRequestInterface)) {
                 throw new \InvalidArgumentException('$requests of doAuthenticate() method only accepts array of SignRequest.');
             }
 
-            if ($row->keyHandle === $response->keyHandle && $row->challenge === $decodedClient->challenge) {
+            if ($row->keyHandle === $response->getKeyHandle() && $row->challenge === $decodedClient->challenge) {
                 $req = $row;
                 break;
             }
@@ -189,14 +189,14 @@ class U2F implements U2F_interface
             throw new U2fError('No matching request found', U2fError::ERR_NO_MATCHING_REQUEST);
         }
         /**
-         * @var Registration reg
+         * @var RegistrationInterface reg
          */
         foreach ($registrations as $row) {
-            if (!($row instanceof Registration)) {
+            if (!($row instanceof RegistrationInterface)) {
                 throw new \InvalidArgumentException('$registrations of doAuthenticate() method only accepts array of Registration.');
             }
 
-            if ($row->keyHandle === $response->keyHandle) {
+            if ($row->getKeyHandle() === $response->getKeyHandle()) {
                 $reg = $row;
                 break;
             }
@@ -204,13 +204,13 @@ class U2F implements U2F_interface
         if (!isset($reg)) {
             throw new U2fError('No matching registration found', U2fError::ERR_NO_MATCHING_REGISTRATION);
         }
-        $pemKey = $this->pubkey_to_pem($this->base64u_decode($reg->publicKey));
+        $pemKey = $this->pubkey_to_pem($this->base64u_decode($reg->getPublicKey()));
         if ($pemKey === null) {
             throw new U2fError('Decoding of public key failed', U2fError::ERR_PUBKEY_DECODE);
         }
 
-        $signData = $this->base64u_decode($response->signatureData);
-        $dataToVerify = hash('sha256', $req->appId, true);
+        $signData = $this->base64u_decode($response->getSignatureData());
+        $dataToVerify = hash('sha256', $req->getAppId(), true);
         $dataToVerify .= substr($signData, 0, 5);
         $dataToVerify .= hash('sha256', $clientData, true);
         $signature = substr($signData, 5);
@@ -219,8 +219,8 @@ class U2F implements U2F_interface
             $ctr = unpack("Nctr", substr($signData, 1, 4));
             $counter = $ctr['ctr'];
             /* TODO: wrap-around should be handled somehow.. */
-            if ($counter > $reg->counter) {
-                $reg->counter = $counter;
+            if ($counter > $reg->getCounter()) {
+                $reg->setCounter($counter);
                 return $reg;
             } else {
                 throw new U2fError('Counter too low.', U2fError::ERR_COUNTER_TOO_LOW);

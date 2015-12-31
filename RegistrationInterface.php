@@ -37,89 +37,55 @@
 
 namespace paul999\u2f;
 
+
 /**
- * Class for building up an authentication request
+ * Class returned for successful registrations
  *
  * @package u2flib_server
  */
-class RegisterResponse implements RegisterResponseInterface
+interface RegistrationInterface
 {
     /**
-     * @var string Registration data
+     * @return string
      */
-    private $registrationData;
-
-    /** @var string client data */
-    private $clientData;
-
-    /** @var string errorCode from the browser */
-    private $errorCode;
+    public function getKeyHandle();
 
     /**
-     * RegisterResponse constructor.
-     * @param string $registrationData
-     * @param string $clientData
-     * @param string $errorCode
+     * @param string $keyHandle
+     * @return RegistrationInterface
      */
-    public function __construct($registrationData, $clientData, $errorCode = null)
-    {
-        $this->registrationData = $registrationData;
-        $this->clientData       = $clientData;
-        $this->errorCode        = $errorCode;
-    }
+    public function setKeyHandle($keyHandle);
 
     /**
      * @return string
      */
-    public function getRegistrationData()
-    {
-        return $this->registrationData;
-    }
+    public function getPublicKey();
 
     /**
-     * @param string $registrationData
-     * @return RegisterResponseInterface
+     * @param string $publicKey
+     * @return RegistrationInterface
      */
-    public function setRegistrationData($registrationData)
-    {
-        $this->registrationData = $registrationData;
-        return $this;
-    }
+    public function setPublicKey($publicKey);
 
     /**
      * @return string
      */
-    public function getClientData()
-    {
-        return $this->clientData;
-    }
+    public function getCertificate();
 
     /**
-     * @param string $clientData
-     * @return RegisterResponseInterface
+     * @param string $certificate
+     * @return RegistrationInterface
      */
-    public function setClientData($clientData)
-    {
-        $this->clientData = $clientData;
-        return $this;
-    }
+    public function setCertificate($certificate);
 
     /**
-     * @return string
+     * @return int
      */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
+    public function getCounter();
 
     /**
-     * @param string $errorCode
-     * @return RegisterResponseInterface
+     * @param int $counter
+     * @return RegistrationInterface
      */
-    public function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-        return $this;
-    }
-
+    public function setCounter($counter);
 }

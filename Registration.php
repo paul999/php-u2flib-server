@@ -42,8 +42,39 @@ namespace paul999\u2f;
  *
  * @package u2flib_server
  */
-class Registration
+class Registration implements RegistrationInterface
 {
+    /**
+     * The key handle of the registered authenticator
+     * @var string
+     */
+    private $keyHandle;
+
+    /**
+     * The public key of the registered authenticator
+     * @var string
+     */
+    private $publicKey;
+
+    /**
+     * The attestation certificate of the registered authenticator
+     * @var string
+     */
+    private $certificate;
+
+    /**
+     * The counter associated with this registration
+     * @var int
+     */
+    private $counter = -1;
+
+    /**
+     * Registration constructor.
+     * @param string $keyHandle
+     * @param string $publicKey
+     * @param string $certificate
+     * @param int $counter
+     */
     public function __construct($keyHandle = null, $publicKey = null, $certificate = null, $counter = -1)
     {
         $this->keyHandle = $keyHandle;
@@ -52,15 +83,75 @@ class Registration
         $this->counter = $counter;
     }
 
-    /** The key handle of the registered authenticator */
-    public $keyHandle;
+    /**
+     * @return string
+     */
+    public function getKeyHandle()
+    {
+        return $this->keyHandle;
+    }
 
-    /** The public key of the registered authenticator */
-    public $publicKey;
+    /**
+     * @param string $keyHandle
+     * @return RegistrationInterface
+     */
+    public function setKeyHandle($keyHandle)
+    {
+        $this->keyHandle = $keyHandle;
+        return $this;
+    }
 
-    /** The attestation certificate of the registered authenticator */
-    public $certificate;
+    /**
+     * @return string
+     */
+    public function getPublicKey()
+    {
+        return $this->publicKey;
+    }
 
-    /** The counter associated with this registration */
-    public $counter = -1;
+    /**
+     * @param string $publicKey
+     * @return RegistrationInterface
+     */
+    public function setPublicKey($publicKey)
+    {
+        $this->publicKey = $publicKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCertificate()
+    {
+        return $this->certificate;
+    }
+
+    /**
+     * @param string $certificate
+     * @return RegistrationInterface
+     */
+    public function setCertificate($certificate)
+    {
+        $this->certificate = $certificate;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCounter()
+    {
+        return $this->counter;
+    }
+
+    /**
+     * @param int $counter
+     * @return RegistrationInterface
+     */
+    public function setCounter($counter)
+    {
+        $this->counter = $counter;
+        return $this;
+    }
 }

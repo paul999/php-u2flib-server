@@ -56,14 +56,14 @@ interface U2F_interface
     /**
      * Called to verify and unpack a registration message.
      *
-     * @param RegisterRequest $request this is a reply to
-     * @param RegisterResponse $response response from a user
+     * @param RegisterRequestInterface $request this is a reply to
+     * @param RegisterResponseInterface $response response from a user
      * @param bool $includeCert set to true if the attestation certificate should be
      * included in the returned Registration object
-     * @return Registration
+     * @return RegistrationInterface
      * @throws U2fError
      */
-    public function doRegister(RegisterRequest $request, RegisterResponse $response, $includeCert = true);
+    public function doRegister(RegisterRequestInterface $request, RegisterResponseInterface $response, $includeCert = true);
 
     /**
      * Called to get an authentication request.
@@ -79,8 +79,8 @@ interface U2F_interface
      *
      * @param array $requests An array of outstanding authentication requests
      * @param array $registrations An array of current registrations
-     * @param AuthenticationResponse $response A response from the authenticator
-     * @return Registration
+     * @param AuthenticationResponseInterface $response A response from the authenticator
+     * @return RegistrationInterface
      * @throws U2fError
      *
      * The Registration object returned on success contains an updated counter
@@ -88,7 +88,7 @@ interface U2F_interface
      * If the Error returned is ERR_COUNTER_TOO_LOW this is an indication of
      * token cloning or similar and appropriate action should be taken.
      */
-    public function doAuthenticate(array $requests, array $registrations, AuthenticationResponse $response);
+    public function doAuthenticate(array $requests, array $registrations, AuthenticationResponseInterface $response);
 
     const U2F_VERSION = "U2F_V2";
 

@@ -37,89 +37,44 @@
 
 namespace paul999\u2f;
 
+
 /**
  * Class for building up an authentication request
  *
  * @package u2flib_server
  */
-class RegisterResponse implements RegisterResponseInterface
+interface RegisterResponseInterface
 {
     /**
-     * @var string Registration data
-     */
-    private $registrationData;
-
-    /** @var string client data */
-    private $clientData;
-
-    /** @var string errorCode from the browser */
-    private $errorCode;
-
-    /**
-     * RegisterResponse constructor.
-     * @param string $registrationData
-     * @param string $clientData
-     * @param string $errorCode
-     */
-    public function __construct($registrationData, $clientData, $errorCode = null)
-    {
-        $this->registrationData = $registrationData;
-        $this->clientData       = $clientData;
-        $this->errorCode        = $errorCode;
-    }
-
-    /**
      * @return string
      */
-    public function getRegistrationData()
-    {
-        return $this->registrationData;
-    }
+    public function getRegistrationData();
 
     /**
      * @param string $registrationData
      * @return RegisterResponseInterface
      */
-    public function setRegistrationData($registrationData)
-    {
-        $this->registrationData = $registrationData;
-        return $this;
-    }
+    public function setRegistrationData($registrationData);
 
     /**
      * @return string
      */
-    public function getClientData()
-    {
-        return $this->clientData;
-    }
+    public function getClientData();
 
     /**
      * @param string $clientData
      * @return RegisterResponseInterface
      */
-    public function setClientData($clientData)
-    {
-        $this->clientData = $clientData;
-        return $this;
-    }
+    public function setClientData($clientData);
 
     /**
      * @return string
      */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
+    public function getErrorCode();
 
     /**
      * @param string $errorCode
      * @return RegisterResponseInterface
      */
-    public function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-        return $this;
-    }
-
+    public function setErrorCode($errorCode);
 }

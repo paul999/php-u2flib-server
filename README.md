@@ -10,22 +10,26 @@ Introduction
 Serverside U2F library for PHP. Provides functionality for registering
 tokens and authentication with said tokens.
 
+This project started as fork of the code Originally from [Yubico](https://github.com/Yubico/php-u2flib-server), however 
+it is not a direct replacement. Code changes are required to use this new libary.
+
 To read more about U2F and how to use a U2F library, visit
-link:http://developers.yubico.com/U2F[developers.yubico.com/U2F].
+[http://developers.yubico.com/U2F](developers.yubico.com/U2F).
+
+Usage
+=====
+A full set of documentation is coming. Some old examples of the original libary are still in examples/, however these are not
+compitable with the fork yet.
+
+It is prefered to use composer for managing your dependencies. You can add this libary by simply running composer require:
+```
+composer require paul999/u2flib-server
+```
 
 License
 ========
 The project is licensed under a BSD license.  See the file COPYING for
-exact wording.  For any copyright year range specified as YYYY-ZZZZ in
-this package note that the range specifies every single year in that
-closed interval.
-
-Dependencies
-============
-The only dependency is the openssl extension to PHP that has to be enabled.
-
-A composer.json is included in the distribution to make things simpler for
-other project using composer.
+exact wording. 
 
 Tests
 =====
