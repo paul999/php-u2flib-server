@@ -48,25 +48,25 @@ class SignRequest implements SignRequestInterface
      * Protocol version
      * @var string
      */
-    public $version = U2F_interface::U2F_VERSION;
+    private $version = U2F_interface::U2F_VERSION;
 
     /**
      * Authentication challenge
      * @var string
      */
-    public $challenge;
+    private $challenge;
 
     /**
      * Key handle of a registered authenticator
      * @var string
      */
-    public $keyHandle;
+    private $keyHandle;
 
     /**
      * Application id
      * @var string
      */
-    public $appId;
+    private $appId;
 
     /**
      * SignRequest constructor.

@@ -180,7 +180,7 @@ class U2F implements U2F_interface
                 throw new \InvalidArgumentException('$requests of doAuthenticate() method only accepts array of SignRequest.');
             }
 
-            if ($row->keyHandle === $response->getKeyHandle() && $row->challenge === $decodedClient->challenge) {
+            if ($row->getKeyHandle() === $response->getKeyHandle() && $row->getChallenge() === $decodedClient->challenge) {
                 $req = $row;
                 break;
             }
@@ -316,7 +316,7 @@ class U2F implements U2F_interface
      * Fixes a certificate where the signature contains unused bits.
      *
      * @param string $cert
-     * @return mixed
+     * @return string
      */
     private function fixSignatureUnusedBits($cert)
     {
