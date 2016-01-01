@@ -4,6 +4,7 @@ php-u2flib-server
 
 [![Build Status](https://travis-ci.org/paul999/php-u2flib-server.svg?branch=master)](https://travis-ci.org/paul999/php-u2flib-server)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/paul999/php-u2flib-server/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/paul999/php-u2flib-server/)
+[![Coverage Status](https://coveralls.io/repos/paul999/php-u2flib-server/badge.svg?branch=master&service=github)](https://coveralls.io/github/paul999/php-u2flib-server?branch=master)
 
 Introduction
 ============
