@@ -60,8 +60,8 @@ class RegisterRequest implements RegisterRequestInterface
      */
     public function __construct($challenge, $appId)
     {
-        $this->challenge = $challenge;
-        $this->appId = $appId;
+        $this->setChallenge($challenge);
+        $this->setAppId($appId);
     }
 
     /**

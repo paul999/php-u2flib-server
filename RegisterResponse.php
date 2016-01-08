@@ -63,9 +63,9 @@ class RegisterResponse implements RegisterResponseInterface
      */
     public function __construct($registrationData, $clientData, $errorCode = null)
     {
-        $this->registrationData = $registrationData;
-        $this->clientData       = $clientData;
-        $this->errorCode        = $errorCode;
+        $this->setRegistrationData($registrationData);
+        $this->setClientData($clientData);
+        $this->setErrorCode($errorCode);
     }
 
     /**

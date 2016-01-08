@@ -77,10 +77,10 @@ class Registration implements RegistrationInterface
      */
     public function __construct($keyHandle = null, $publicKey = null, $certificate = null, $counter = -1)
     {
-        $this->keyHandle = $keyHandle;
-        $this->publicKey = $publicKey;
-        $this->certificate = $certificate;
-        $this->counter = $counter;
+        $this->setKeyHandle($keyHandle);
+        $this->setPublicKey($publicKey);
+        $this->setCertificate($certificate);
+        $this->setCounter($counter);
     }
 
     /**

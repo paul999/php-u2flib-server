@@ -76,9 +76,9 @@ class SignRequest implements SignRequestInterface
      */
     public function __construct($challenge, $keyHandle, $appId)
     {
-        $this->challenge = $challenge;
-        $this->keyHandle = $keyHandle;
-        $this->appId = $appId;
+        $this->setChallenge($challenge);
+        $this->setKeyHandle($keyHandle);
+        $this->setAppId($appId);
     }
 
     /**
