@@ -73,10 +73,10 @@ class AuthenticationResponse implements AuthenticationResponseInterface
      */
     public function __construct($signatureData, $clientData, $keyHandle, $errorCode = null)
     {
-        $this->signatureData    = $signatureData;
-        $this->clientData       = $clientData;
-        $this->keyHandle        = $keyHandle;
-        $this->errorCode        = $errorCode;
+        $this->setSignatureData($signatureData);
+        $this->setClientData($clientData);
+        $this->setKeyHandle($keyHandle);
+        $this->setErrorCode($errorCode);
     }
 
     /**
