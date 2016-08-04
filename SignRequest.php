@@ -36,13 +36,14 @@
  */
 
 namespace paul999\u2f;
+use JsonSerializable;
 
 /**
  * Class for building up an authentication request
  *
  * @package u2flib_server
  */
-class SignRequest implements SignRequestInterface
+class SignRequest implements SignRequestInterface, JsonSerializable
 {
     /**
      * Protocol version
@@ -151,5 +152,22 @@ class SignRequest implements SignRequestInterface
     {
         $this->appId = $appId;
         return $this;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    function jsonSerialize()
+    {
+        return [
+            'version'   => $this->getVersion(),
+            'appId'     => $this->getAppId(),
+            'challenge' => $this->getChallenge(),
+            'keyHandle' => $this->getKeyHandle(),
+        ];
     }
 }

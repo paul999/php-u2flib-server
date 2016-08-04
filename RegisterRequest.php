@@ -36,6 +36,7 @@
  */
 
 namespace paul999\u2f;
+use JsonSerializable;
 
 
 /**
@@ -43,7 +44,7 @@ namespace paul999\u2f;
  *
  * @package u2flib_server
  */
-class RegisterRequest implements RegisterRequestInterface
+class RegisterRequest implements RegisterRequestInterface, JsonSerializable
 {
     /** Protocol version */
     private $version = U2F_interface::U2F_VERSION;
@@ -116,5 +117,21 @@ class RegisterRequest implements RegisterRequestInterface
     {
         $this->appId = $appId;
         return $this;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    function jsonSerialize()
+    {
+        return [
+            'version'   => $this->getVersion(),
+            'appId'     => $this->getAppId(),
+            'challenge' => $this->getChallenge(),
+        ];
     }
 }

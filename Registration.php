@@ -36,13 +36,14 @@
  */
 
 namespace paul999\u2f;
+use JsonSerializable;
 
 /**
  * Class returned for successful registrations
  *
  * @package u2flib_server
  */
-class Registration implements RegistrationInterface
+class Registration implements RegistrationInterface, JsonSerializable
 {
     /**
      * The key handle of the registered authenticator
@@ -153,5 +154,22 @@ class Registration implements RegistrationInterface
     {
         $this->counter = $counter;
         return $this;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    function jsonSerialize()
+    {
+        return [
+            'keyHandle'     => $this->getKeyHandle(),
+            'publicKey'     => $this->getPublicKey(),
+            'certificate'   => $this->getCertificate(),
+            'counter'       => $this->getCounter(),
+        ];
     }
 }
