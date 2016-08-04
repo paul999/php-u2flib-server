@@ -68,12 +68,12 @@ interface RegisterResponseInterface
     public function setClientData($clientData);
 
     /**
-     * @return string
+     * @return int
      */
     public function getErrorCode();
 
     /**
-     * @param string $errorCode
+     * @param int $errorCode
      * @return RegisterResponseInterface
      */
     public function setErrorCode($errorCode);

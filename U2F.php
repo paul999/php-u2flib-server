@@ -83,7 +83,7 @@ class U2F implements U2F_interface
 
     public function doRegister(RegisterRequestInterface $request, RegisterResponseInterface $response, $includeCert = true)
     {
-        if ($response->getErrorCode() != null) {
+        if ($response->getErrorCode() !== null && $response->getErrorCode() !== 0) {
             throw new U2fError('User-agent returned error. Error code: ' . $response->getErrorCode(), U2fError::ERR_BAD_UA_RETURNING);
         }
 
